@@ -1,4 +1,4 @@
-package ws18.tokenmanagement;
+package ws18;
 
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
