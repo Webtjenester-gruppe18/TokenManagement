@@ -16,8 +16,7 @@ import java.util.ArrayList;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,11 +33,6 @@ class TokenControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void tooManyTokens() throws TooManyTokensException {
-        tokenController.generateTokens(cpr, 7);
-    }
-
-    @Test
     void getTokensByCpr() throws Exception {
         mockMvc.perform(get("/tokens/" + cpr))
                 .andExpect(status().isOk());
@@ -46,23 +40,20 @@ class TokenControllerTest {
 
     @Test
     void generateTokens() throws Exception {
-        tokenAmount = 5;
-        mockMvc.perform(post("/tokens/" + cpr + "/" + tokenAmount))
-                .andExpect(status().isCreated());
+        mockMvc.perform(post("/tokens/" + cpr))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void generateNegativeTokens() throws Exception {
-        tokenAmount = -1;
-        mockMvc.perform(post("/tokens/" + cpr + "/" + tokenAmount))
-                .andExpect(status().isBadRequest());
+    void getUnusedTokensByCpr() throws Exception {
+        mockMvc.perform(get("/tokens/"+cpr+"/unused"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void generateTooManyTokens() throws Exception {
-        tokenAmount = 7;
-        mockMvc.perform(post("/tokens/" + cpr + "/" + tokenAmount))
-                .andExpect(status().isBadRequest());
+    void deleteTokens() throws Exception {
+        mockMvc.perform(delete("/tokens/"+cpr))
+                .andExpect(status().isOk());
     }
 
 }
