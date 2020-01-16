@@ -3,6 +3,7 @@ package ws18.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ws18.exceptions.TokenValidationException;
 import ws18.exceptions.TooManyTokensException;
 import ws18.model.Token;
 import ws18.service.TokenManager;
@@ -20,12 +21,7 @@ public class TokenController  {
     }
 
     @RequestMapping(path = "tokens/{cpr}", method = RequestMethod.GET)
-    public ArrayList<Token> getTokensByCpr(@PathVariable @NotNull String cpr) {
-        return tokenManager.getTokensByCpr(cpr);
-    }
-
-    @RequestMapping(path = "tokens/{cpr}/unused", method = RequestMethod.GET)
-    public ResponseEntity<Object> getUnusedTokensByCpr(@PathVariable @NotNull String cpr) {
+    public ResponseEntity<Object> getTokensByCpr(@PathVariable @NotNull String cpr) {
         ArrayList<Token> tokens = tokenManager.getUnusedTokensByCpr(cpr);
         return ResponseEntity.status(HttpStatus.OK).body(tokens);
     }
@@ -36,17 +32,11 @@ public class TokenController  {
         return ResponseEntity.status(HttpStatus.OK).body(tokens);
     }
 
-    @RequestMapping(path = "tokens/{cpr}", method = RequestMethod.DELETE)
-    public ResponseEntity<Object> clearUserTokens(@PathVariable @NotNull String cpr) {
-        tokenManager.clearUserTokens(cpr);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
-    }
-
     @RequestMapping(path = "tokens/{cpr}/valid", method = RequestMethod.POST)
     public ResponseEntity<Object> isTokenFake(@PathVariable @NotNull String cpr,
-                                              @RequestBody @NotNull Token token) {
-        boolean isFake = tokenManager.isTokenFake(cpr, token);
-        return ResponseEntity.status(HttpStatus.OK).body(isFake);
+                                              @RequestBody @NotNull Token token) throws TokenValidationException {
+        Token validToken = tokenManager.validateToken(cpr, token);
+        return ResponseEntity.status(HttpStatus.OK).body(validToken);
     }
 
     @RequestMapping(path = "tokens/", method = RequestMethod.POST)
