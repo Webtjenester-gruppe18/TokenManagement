@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class TokenManagementApplicationTest {
     @Test
-    void contextLoads() {
+    public void contextLoads() {
 
     }
 }
