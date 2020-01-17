@@ -3,6 +3,7 @@ package ws18.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ws18.exceptions.TokenUsedException;
 import ws18.exceptions.TokenValidationException;
 import ws18.exceptions.TooManyTokensException;
 import ws18.model.Token;
@@ -32,15 +33,15 @@ public class TokenController  {
         return ResponseEntity.status(HttpStatus.OK).body(tokens);
     }
 
-    @RequestMapping(path = "tokens/{cpr}/valid", method = RequestMethod.POST)
+    @RequestMapping(path = "tokens/{cpr}/valid", method = RequestMethod.PUT)
     public ResponseEntity<Object> isTokenFake(@PathVariable @NotNull String cpr,
                                               @RequestBody @NotNull Token token) throws TokenValidationException {
         Token validToken = tokenManager.validateToken(cpr, token);
         return ResponseEntity.status(HttpStatus.OK).body(validToken);
     }
 
-    @RequestMapping(path = "tokens/", method = RequestMethod.POST)
-    public ResponseEntity<Object> useToken(@RequestBody @NotNull Token token) {
+    @RequestMapping(path = "tokens", method = RequestMethod.PUT)
+    public ResponseEntity<Object> useToken(@RequestBody @NotNull Token token) throws TokenUsedException {
         tokenManager.useToken(token);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

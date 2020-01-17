@@ -1,11 +1,14 @@
 package ws18.token;
 
 import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.After;
+import org.junit.Assert;
 import ws18.exceptions.ExceptionContainer;
+import ws18.exceptions.TokenUsedException;
 import ws18.exceptions.TooManyTokensException;
 import ws18.model.Token;
 import ws18.service.ITokenManager;
@@ -21,6 +24,7 @@ public class TokenManagementSteps {
     private ITokenManager tokenManager;
     private ArrayList<Token> tokensReceived;
     private ExceptionContainer exceptionContainer = new ExceptionContainer();
+    private Token token;
 
     @Before
     public void setUp() {
@@ -82,5 +86,26 @@ public class TokenManagementSteps {
     @After
     public void tearDown() {
         this.tokenManager.clearUserTokens(this.currentCustomer.getCprNumber());
+    }
+
+    @When("the customer uses a token")
+    public void theCustomerUsesAToken() {
+        String errorMsg = null;
+        this.token = this.tokenManager.getUnusedTokensByCpr(this.currentCustomer.getCprNumber()).get(0);
+        try {
+            this.tokenManager.useToken(token);
+        } catch (TokenUsedException e) {
+            errorMsg = e.getMessage();
+        }
+        Assert.assertNull(errorMsg);
+    }
+
+    @And("the customer uses the same token again")
+    public void theCustomerUsesTheSameTokenAgain() {
+        try {
+            this.tokenManager.useToken(token);
+        } catch (TokenUsedException e) {
+            this.exceptionContainer.setErrorMessage(e.getMessage());
+        }
     }
 }

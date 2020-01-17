@@ -3,6 +3,7 @@ package ws18.service;
 
 import ws18.database.ITokenDatabase;
 import ws18.database.InMemoryTokenDatabase;
+import ws18.exceptions.TokenUsedException;
 import ws18.exceptions.TokenValidationException;
 import ws18.exceptions.TooManyTokensException;
 import ws18.model.Token;
@@ -87,10 +88,14 @@ public class TokenManager implements ITokenManager {
     }
 
     @Override
-    public Token useToken(Token token) {
-        token.setHasBeenUsed(true);
-
-        return token;
+    public Token useToken(Token token) throws TokenUsedException {
+        for (Token tokenInc : this.tokenDatabase.getAllTokens()) {
+            if (tokenInc.equals(token) && !tokenInc.isHasBeenUsed()) {
+                tokenInc.setHasBeenUsed(true);
+                return tokenInc;
+            }
+        }
+        throw new TokenUsedException("The token has already been used.");
     }
 
     public boolean isTokenFake(String userCprNumber, Token token) {

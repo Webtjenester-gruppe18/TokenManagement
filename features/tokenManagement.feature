@@ -12,3 +12,10 @@ Feature: Token Management Features
     And the customer has atleast 2 unused token left
     When the customer requests more tokens
     Then the customer gets a error message saying "The user has too many token to request for new ones."
+
+    Scenario: A customer uses a token
+      Given the customer is registered
+      And the customer has atleast 1 unused token left
+      When the customer uses a token
+      And the customer uses the same token again
+      Then the customer gets a error message saying "The token has already been used."
