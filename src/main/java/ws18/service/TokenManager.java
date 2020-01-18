@@ -1,6 +1,7 @@
 package ws18.service;
 
 
+import org.springframework.stereotype.Component;
 import ws18.database.ITokenDatabase;
 import ws18.database.InMemoryTokenDatabase;
 import ws18.exceptions.TokenUsedException;
@@ -10,6 +11,7 @@ import ws18.model.Token;
 
 import java.util.ArrayList;
 
+@Component
 public class TokenManager implements ITokenManager {
 
     private ITokenDatabase tokenDatabase = new InMemoryTokenDatabase();
