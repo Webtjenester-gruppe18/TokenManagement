@@ -98,6 +98,11 @@ public class TokenManager implements ITokenManager {
         throw new TokenUsedException("The token has already been used.");
     }
 
+    @Override
+    public String TEST() {
+        return "TEST COMPLETE...";
+    }
+
     public boolean isTokenFake(String userCprNumber, Token token) {
 
         ArrayList<Token> tokens = this.getTokensByCpr(userCprNumber);
