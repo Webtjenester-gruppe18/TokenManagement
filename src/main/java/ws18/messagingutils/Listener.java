@@ -10,7 +10,10 @@ import ws18.exceptions.TooManyTokensException;
 import ws18.model.Event;
 import ws18.model.EventType;
 import ws18.model.PaymentRequest;
+import ws18.model.Token;
 import ws18.service.ITokenManager;
+
+import java.util.ArrayList;
 
 @Service
 public class Listener {
@@ -41,8 +44,7 @@ public class Listener {
 
             event.setType(EventType.MONEY_TRANSFER_REQUEST);
             this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.PAYMENT_SERVICE_ROUTING_KEY, event);
-        }
-        else if (event.getType().equals(EventType.REQUEST_FOR_NEW_TOKENS)) {
+        } else if (event.getType().equals(EventType.REQUEST_FOR_NEW_TOKENS)) {
             String cpr = mapper.convertValue(event.getObject(), String.class);
 
             try {
@@ -55,6 +57,17 @@ public class Listener {
 
             Event successResponse = new Event(EventType.TOKEN_GENERATION_SUCCEED, EventType.TOKEN_GENERATION_SUCCEED);
             this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.DTU_SERVICE_ROUTING_KEY, successResponse);
+        } else if (event.getType().equals(EventType.RETRIEVE_TOKENS)) {
+            String cpr = mapper.convertValue(event.getObject(), String.class);
+            ArrayList<Token> tokens = this.tokenManager.getUnusedTokensByCpr(cpr);
+            if (tokens.isEmpty()) {
+                Event successResponse = new Event(EventType.RETRIEVE_TOKENS_FAILED, tokens);
+                this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.DTU_SERVICE_ROUTING_KEY, successResponse);
+            } else {
+                Event successResponse = new Event(EventType.RETRIEVE_TOKENS_SUCCEED, tokens);
+                this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.DTU_SERVICE_ROUTING_KEY, successResponse);
+            }
+
         }
     }
 }
