@@ -99,17 +99,4 @@ public class TokenManager implements ITokenManager {
         }
         throw new TokenUsedException("The token has already been used.");
     }
-
-    public boolean isTokenFake(String userCprNumber, Token token) {
-
-        ArrayList<Token> tokens = this.getTokensByCpr(userCprNumber);
-
-        for (Token t : tokens) {
-            if (t.getValue().equals(token.getValue())) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }
