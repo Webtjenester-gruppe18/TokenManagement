@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class TokenControllerTest {
 
-    private TokenController tokenController = new TokenController();
     private String cpr = "112233-4455";
     private int tokenAmount;
 
