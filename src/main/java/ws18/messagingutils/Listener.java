@@ -1,30 +1,44 @@
 package ws18.messagingutils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ws18.exceptions.TokenValidationException;
 import ws18.model.Event;
 import ws18.model.EventType;
+import ws18.model.PaymentRequest;
 import ws18.service.ITokenManager;
 
 @Service
 public class Listener {
     private RabbitTemplate rabbitTemplate;
     private ITokenManager tokenManager;
+    private ObjectMapper mapper;
 
     @Autowired
-    public Listener(RabbitTemplate rabbitTemplate, ITokenManager tokenManager) {
+    public Listener(RabbitTemplate rabbitTemplate, ITokenManager tokenManager, ObjectMapper objectMapper) {
         this.rabbitTemplate = rabbitTemplate;
         this.tokenManager = tokenManager;
+        this.mapper = objectMapper;
     }
 
     @RabbitListener(queues = {RabbitMQValues.TOKEN_SERVICE_QUEUE_NAME})
     public void receiveEventFromTokenQueue(Event event) {
         System.out.println("Token manager received message: " + event.getType());
         if (event.getType().equals(EventType.TOKEN_VALIDATION_REQUEST)) {
-            this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.PAYMENT_SERVICE_ROUTING_KEY, event);
+            PaymentRequest paymentRequest = mapper.convertValue(event.getObject(), PaymentRequest.class);
 
+            try {
+                this.tokenManager.validateToken(paymentRequest.getCpr(), paymentRequest.getToken());
+            } catch (TokenValidationException e) {
+                Event response = new Event(EventType.TOKEN_VALIDATION_FAILED, e);
+                this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.DTU_SERVICE_ROUTING_KEY, response);
+            }
+
+            event.setType(EventType.MONEY_TRANSFER_REQUEST);
+            this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.PAYMENT_SERVICE_ROUTING_KEY, event);
         }
     }
 }
