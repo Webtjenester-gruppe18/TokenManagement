@@ -24,6 +24,13 @@ public class Listeners {
     @RabbitListener(queues = {queueName})
     public void receiveEventFromTokenQueue(String message) {
         System.out.println("Token manager received message: " + message);
+        if (event.getType().equals(REQUEST_TOKEN)) {
+            try {
+                this.tokenManager.requestForNewTokens("basd");
+            } catch (TooManyTokensException e) {
+
+            }
+        }
 
         this.rabbitTemplate.convertAndSend(RabbitMQValues.topicExchangeName, "response", "Completed");
     }
