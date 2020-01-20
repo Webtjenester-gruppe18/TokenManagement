@@ -12,6 +12,7 @@ import ws18.messagingutils.IEventSender;
 import ws18.messagingutils.RabbitMQValues;
 import ws18.model.Event;
 import ws18.model.EventType;
+import ws18.model.PaymentRequest;
 import ws18.model.Token;
 
 import java.util.ArrayList;
@@ -21,8 +22,6 @@ public class TokenManager implements ITokenManager, IEventReceiver {
 
     private final ObjectMapper objectMapper;
     private ITokenDatabase tokenDatabase = new InMemoryTokenDatabase();
-    private final int maxAmountOfTokens = 6;
-    private final int amountOfTokensToRequestForNewOnes = 1;
     private IEventSender eventSender;
 
     public TokenManager(IEventSender eventSender) {
@@ -78,10 +77,12 @@ public class TokenManager implements ITokenManager, IEventReceiver {
 
         ArrayList<Token> userTokens = getTokensByCpr(cprNumber);
 
+        int amountOfTokensToRequestForNewOnes = 1;
         if (userTokens.size() > amountOfTokensToRequestForNewOnes) {
             throw new TooManyTokensException("The user has too many token to request for new ones.");
         }
 
+        int maxAmountOfTokens = 6;
         return generateTokens(cprNumber, maxAmountOfTokens - userTokens.size());
     }
 
@@ -112,7 +113,7 @@ public class TokenManager implements ITokenManager, IEventReceiver {
         throw new TokenUsedException("The token has already been used.");
     }
 
-    public boolean isTokenFake(String userCprNumber, Token token) {
+    private boolean isTokenFake(String userCprNumber, Token token) {
 
         ArrayList<Token> tokens = this.getTokensByCpr(userCprNumber);
 
@@ -128,14 +129,38 @@ public class TokenManager implements ITokenManager, IEventReceiver {
     @Override
     public void receiveEvent(Event event) throws Exception {
 
-        System.out.println(event.getObject());
-        String cpr = objectMapper.convertValue(event.getObject(), String.class);
-        Event responseEvent =  new Event();
-        responseEvent.setObject(requestForNewTokens(cpr));
-        responseEvent.setType(EventType.TOKEN_GENERATION_SUCCEED);
-        responseEvent.setRoutingKey(RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+        if (event.getType().equals(EventType.TOKEN_VALIDATION_REQUEST)) {
+            PaymentRequest paymentRequest = objectMapper.convertValue(event.getObject(), PaymentRequest.class);
 
-        eventSender.sendEvent(responseEvent);
+            try {
+                validateToken(paymentRequest.getCpr(), paymentRequest.getToken());
+            } catch (TokenValidationException e) {
+                Event response = new Event(EventType.TOKEN_VALIDATION_FAILED, e, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+                eventSender.sendEvent(response);
+                return;
+            }
+            event.setType(EventType.MONEY_TRANSFER_REQUEST);
+            event.setRoutingKey(RabbitMQValues.PAYMENT_SERVICE_ROUTING_KEY);
+            eventSender.sendEvent(event);
+        } else if (event.getType().equals(EventType.REQUEST_FOR_NEW_TOKENS)) {
+            String cpr = objectMapper.convertValue(event.getObject(), String.class);
 
+            try {
+                requestForNewTokens(cpr);
+            } catch (TooManyTokensException e) {
+                Event response = new Event(EventType.TOKEN_GENERATION_FAILED, e, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+                eventSender.sendEvent(response);
+                return;
+            }
+
+            Event successResponse = new Event(EventType.TOKEN_GENERATION_SUCCEED, EventType.TOKEN_GENERATION_SUCCEED, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+            eventSender.sendEvent(successResponse);
+
+        } else if (event.getType().equals(EventType.RETRIEVE_TOKENS)) {
+            String cpr = objectMapper.convertValue(event.getObject(), String.class);
+            ArrayList<Token> tokens = getUnusedTokensByCpr(cpr);
+            Event successResponse = new Event(EventType.RETRIEVE_TOKENS_SUCCEED, tokens, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+            eventSender.sendEvent(successResponse);
+        }
     }
 }

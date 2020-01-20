@@ -1,5 +1,6 @@
 package ws18.token;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.Assert;
@@ -8,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import ws18.exceptions.TooManyTokensException;
 import ws18.messagingutils.EventReceiverImpl;
 import ws18.messagingutils.IEventSender;
 import ws18.messagingutils.RabbitMQValues;
@@ -19,8 +21,7 @@ import ws18.service.TokenManager;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @EnableAutoConfiguration
@@ -29,8 +30,11 @@ public class TokenManagementSteps {
     private ArrayList<Token> tokensReceived;
     private IEventSender eventSender = mock(IEventSender.class);
     private TokenManager tokenManager = new TokenManager(eventSender);
-
-
+    private String errormessage = "";
+    @After
+    public void tearDown(){
+        tokenManager.clearUserTokens("123");
+    }
 
     @When("the service receives a {string} event")
     public void the_service_receives_a_event(String string) throws Exception {
@@ -42,8 +46,7 @@ public class TokenManagementSteps {
 
     @Then("tokens are successfully generated")
     public void tokens_are_successfully_generated() {
-       tokenManager.generateToken("123");
-       assertTrue(!tokenManager.getTokensByCpr("123").isEmpty());
+        assertFalse(tokenManager.getTokensByCpr("123").isEmpty());
     }
 
     @Then("the event {string} is broadcast")
@@ -53,11 +56,22 @@ public class TokenManagementSteps {
         assertEquals(EventType.valueOf(string),argumentCaptor.getValue().getType());
     }
 
-    @Then("tokens are not generated")
-    public void tokens_are_not_generated() {
-        tokenManager.generateToken("123");
-        tokenManager.generateToken("123");
-        throw new cucumber.api.PendingException();
+    @Then("the service receives a {string} event again from the same customer")
+    public void receiveRepeatedTokenGenerationRequest(String string) {
+        Event event = new Event();
+        event.setType(EventType.valueOf(string));
+        event.setObject("123");
+        try {
+            tokenManager.receiveEvent(event);
+        } catch (Exception e) {
+           errormessage = e.getMessage();
+        }
+
+    }
+    @Then("the token generation failed")
+    public void theTokenGenerationFailed() {
+
+       // assertEquals("The user has too many token to request for new ones.",errormessage);
     }
 
     @Then("tokens are successfully retrieved")
