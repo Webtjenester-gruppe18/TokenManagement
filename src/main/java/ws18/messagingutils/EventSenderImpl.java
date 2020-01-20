@@ -36,6 +36,5 @@ public class EventSenderImpl implements IEventSender {
     @Override
     public void sendEvent(Event event) throws Exception {
         this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, event.getRoutingKey(), event);
-        System.out.println(rabbitTemplate + "  Reached this point  " + event.getRoutingKey());
     }
 }

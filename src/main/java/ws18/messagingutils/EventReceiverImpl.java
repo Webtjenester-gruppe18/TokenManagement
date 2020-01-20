@@ -20,12 +20,10 @@ public class EventReceiverImpl {
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        channel.queueBind(RabbitMQValues.TOKEN_SERVICE_QUEUE_NAME, RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.TOKEN_SERVICE_ROUTING_KEY);
+        channel.queueBind(RabbitMQValues.TOKEN_SERVICE_QUEUE_NAME, RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.TOKEN_SERVICE_ROUTING_KEY); //Change Queuename and routing key
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
-            System.out.println("[x] receiving " + message);
-
             Event event = new Gson().fromJson(message, Event.class);
             try {
                 eventReceiver.receiveEvent(event);
@@ -33,7 +31,7 @@ public class EventReceiverImpl {
                 throw new Error(e);
             }
         };
-        channel.basicConsume(RabbitMQValues.TOKEN_SERVICE_QUEUE_NAME, true, deliverCallback, consumerTag -> {
+        channel.basicConsume(RabbitMQValues.TOKEN_SERVICE_QUEUE_NAME, true, deliverCallback, consumerTag -> {   //Change Queue name
         });
     }
 }
