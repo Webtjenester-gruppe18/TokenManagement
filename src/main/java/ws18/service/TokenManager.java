@@ -1,22 +1,34 @@
 package ws18.service;
 
 
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ws18.database.ITokenDatabase;
 import ws18.database.InMemoryTokenDatabase;
 import ws18.exceptions.TokenUsedException;
 import ws18.exceptions.TokenValidationException;
 import ws18.exceptions.TooManyTokensException;
+import ws18.messagingutils.IEventReceiver;
+import ws18.messagingutils.IEventSender;
+import ws18.messagingutils.RabbitMQValues;
+import ws18.model.Event;
+import ws18.model.EventType;
 import ws18.model.Token;
 
 import java.util.ArrayList;
 
-@Component
-public class TokenManager implements ITokenManager {
 
+public class TokenManager implements ITokenManager, IEventReceiver {
+
+    private final ObjectMapper objectMapper;
     private ITokenDatabase tokenDatabase = new InMemoryTokenDatabase();
     private final int maxAmountOfTokens = 6;
     private final int amountOfTokensToRequestForNewOnes = 1;
+    private IEventSender eventSender;
+
+    public TokenManager(IEventSender eventSender) {
+        this.objectMapper = new ObjectMapper();
+        this.eventSender = eventSender;
+    }
 
     @Override
     public ArrayList<Token> getTokensByCpr(String cprNumber) {
@@ -111,5 +123,19 @@ public class TokenManager implements ITokenManager {
         }
 
         return true;
+    }
+
+    @Override
+    public void receiveEvent(Event event) throws Exception {
+
+        System.out.println(event.getObject());
+        String cpr = objectMapper.convertValue(event.getObject(), String.class);
+        Event responseEvent =  new Event();
+        responseEvent.setObject(requestForNewTokens(cpr));
+        responseEvent.setType(EventType.TOKEN_GENERATION_SUCCEED);
+        responseEvent.setRoutingKey(RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+
+        eventSender.sendEvent(responseEvent);
+
     }
 }

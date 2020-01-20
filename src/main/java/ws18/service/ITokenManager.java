@@ -7,7 +7,7 @@ import ws18.model.Token;
 
 import java.util.ArrayList;
 
-public interface ITokenManager {
+public interface ITokenManager{
 
     ArrayList<Token> getTokensByCpr(String cprNumber);
     ArrayList<Token> getUnusedTokensByCpr(String cprNumber);

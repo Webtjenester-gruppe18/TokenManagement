@@ -13,11 +13,12 @@ public class Event implements Serializable {
 
     private EventType type;
     private Object object;
+    private String routingKey;
 
-    public Event(EventType type, Object object) {
+    public Event(EventType type, Object object, String routingKey) {
         this.object = object;
         this.type = type;
-
+        this.routingKey = routingKey;
     }
 
 }
