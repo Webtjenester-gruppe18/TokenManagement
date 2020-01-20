@@ -57,6 +57,7 @@ public class Listener {
 
             Event successResponse = new Event(EventType.TOKEN_GENERATION_SUCCEED, EventType.TOKEN_GENERATION_SUCCEED);
             this.rabbitTemplate.convertAndSend(RabbitMQValues.TOPIC_EXCHANGE_NAME, RabbitMQValues.DTU_SERVICE_ROUTING_KEY, successResponse);
+
         } else if (event.getType().equals(EventType.RETRIEVE_TOKENS)) {
             String cpr = mapper.convertValue(event.getObject(), String.class);
             ArrayList<Token> tokens = this.tokenManager.getUnusedTokensByCpr(cpr);

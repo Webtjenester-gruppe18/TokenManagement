@@ -1,124 +1,83 @@
 package ws18.token;
 
-import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.After;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import ws18.exceptions.ExceptionContainer;
-import ws18.exceptions.TokenUsedException;
-import ws18.exceptions.TooManyTokensException;
 import ws18.messagingutils.Listener;
 import ws18.model.Event;
+import ws18.model.EventType;
 import ws18.model.Token;
-import ws18.service.ITokenManager;
 import ws18.service.TokenManager;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 
+@EnableAutoConfiguration
 @SpringBootTest
 public class TokenManagementSteps {
-
-    private User currentCustomer;
-    private ITokenManager tokenManager;
     private ArrayList<Token> tokensReceived;
-    private ExceptionContainer exceptionContainer = new ExceptionContainer();
-    private Token token;
+
+    private TokenManager tokenManager;
     private Listener listener;
     @Autowired
-    TokenManagementSteps(Listener listener) {
+    public TokenManagementSteps(TokenManager tokenManager, Listener listener){
+        this.tokenManager = tokenManager;
         this.listener = listener;
-}
-
-    @Before
-    public void setUp() {
-        this.tokenManager = new TokenManager();
     }
 
-    @Given("the customer is registered")
-    public void theCustomerIsRegistered() {
+    @When("the service receives a {string} event")
+    public void the_service_receives_a_event(String string) {
+        Event event = new Event();
+        event.setType(EventType.valueOf(string));
+        event.setObject("123");
+        System.out.println(tokenManager);
+        System.out.println(listener);
 
-
-
-        User customer = new User();
-        customer.setCprNumber("991199-0000");
-        customer.setFirstName("Jane");
-        customer.setLastName("Doe");
-
-        this.currentCustomer = customer;
     }
 
-    @Given("the customer has no more than {int} unused token left")
-    public void theCustomerHasNotMoreThanUnusedTokenLeft(Integer tokensLeft) {
-        try {
-            this.tokenManager.generateTokens(this.currentCustomer.getCprNumber(), tokensLeft);
-        } catch (TooManyTokensException e) {
-            this.exceptionContainer.setErrorMessage(e.getMessage());
-        }
+    @Then("tokens are successfully generated")
+    public void tokens_are_successfully_generated() {
+        System.out.println(verify(tokenManager).generateToken("123"));
     }
 
-    @When("the customer requests more tokens")
-    public void theCustomerRequestsMoreTokens() {
-        try {
-            this.tokensReceived = this.tokenManager.requestForNewTokens(this.currentCustomer.getCprNumber());
-        } catch (TooManyTokensException e) {
-            this.exceptionContainer.setErrorMessage(e.getMessage());
-        }
+    @Then("the event {string} is broadcast")
+    public void the_event_is_broadcast(String string) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
-    @Then("the customer receives {int} new unused tokens")
-    public void theCustomerReceivesNewUnusedTokens(Integer amountOfReceivedTokens) {
-        assertEquals(Integer.valueOf(this.tokensReceived.size()), amountOfReceivedTokens);
+    @Then("tokens are not generated")
+    public void tokens_are_not_generated() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
-    @Then("then has {int} unused tokens")
-    public void thenHasUnusedTokens(Integer amountOfTokensAttachedToTheUserAccount) {
-        assertEquals(Integer.valueOf(this.tokenManager.getTokensByCpr(this.currentCustomer.getCprNumber()).size()), amountOfTokensAttachedToTheUserAccount);
+    @Then("tokens are successfully retrieved")
+    public void tokens_are_successfully_retrieved() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
-    @Given("the customer has atleast {int} unused token left")
-    public void theCustomerHasAtleastUnusedTokenLeft(Integer amountOfTokens) {
-        try {
-            this.tokenManager.requestForNewTokens(this.currentCustomer.getCprNumber());
-        } catch (TooManyTokensException e) {
-            this.exceptionContainer.setErrorMessage(e.getMessage());
-        }
+    @Then("tokens are not retrieved")
+    public void tokens_are_not_retrieved() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
-    @Then("the customer gets a error message saying {string}")
-    public void theCustomerGetsAErrorMessageSaying(String errorMessage) {
-        assertEquals(this.exceptionContainer.getErrorMessage(), errorMessage);
+    @Then("tokens are successfully validated")
+    public void tokens_are_successfully_validated() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
-    @After
-    public void tearDown() {
-        this.tokenManager.clearUserTokens(this.currentCustomer.getCprNumber());
+    @Then("tokens are not validated")
+    public void tokens_are_not_validated() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
-    @When("the customer uses a token")
-    public void theCustomerUsesAToken() {
-        String errorMsg = null;
-        this.token = this.tokenManager.getUnusedTokensByCpr(this.currentCustomer.getCprNumber()).get(0);
-        try {
-            this.tokenManager.useToken(token);
-        } catch (TokenUsedException e) {
-            errorMsg = e.getMessage();
-        }
-        Assert.assertNull(errorMsg);
-    }
 
-    @And("the customer uses the same token again")
-    public void theCustomerUsesTheSameTokenAgain() {
-        try {
-            this.tokenManager.useToken(token);
-        } catch (TokenUsedException e) {
-            this.exceptionContainer.setErrorMessage(e.getMessage());
-        }
-    }
 }

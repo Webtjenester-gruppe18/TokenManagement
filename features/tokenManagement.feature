@@ -1,21 +1,34 @@
 Feature: Token Management Features
 
-  Scenario: A customer request for new tokens
-    Given the customer is registered
-    And the customer has no more than 1 unused token left
-    When the customer requests more tokens
-    Then the customer receives 5 new unused tokens
-    And then has 6 unused tokens
+  Scenario: Successful token generation
+    When the service receives a "REQUEST_FOR_NEW_TOKENS" event
+    Then tokens are successfully generated
+    And the event "TOKEN_GENERATION_SUCCEED" is broadcast
 
-  Scenario: A customer requests for new tokens but has more than 1 unused token
-    Given the customer is registered
-    And the customer has atleast 2 unused token left
-    When the customer requests more tokens
-    Then the customer gets a error message saying "The user has too many token to request for new ones."
+  Scenario: Failing token generation
+    When the service receives a "REQUEST_FOR_NEW_TOKENS" event
+    Then tokens are not generated
+    And the event "TOKEN_GENERATION_FAILED" is broadcast
 
-    Scenario: A customer uses a token
-      Given the customer is registered
-      And the customer has atleast 1 unused token left
-      When the customer uses a token
-      And the customer uses the same token again
-      Then the customer gets a error message saying "The token has already been used."
+  Scenario: Successful token retrieval
+    When the service receives a "RETRIEVE_TOKENS" event
+    Then tokens are successfully retrieved
+    And the event "RETRIEVE_TOKENS_SUCCEED" is broadcast
+
+  Scenario: Failing token retrieval
+    When the service receives a "RETRIEVE_TOKENS" event
+    Then tokens are not retrieved
+    And the event "RETRIEVE_TOKENS_FAILED" is broadcast
+
+  Scenario: Successful token validation
+    When the service receives a "TOKEN_VALIDATION_REQUEST" event
+    Then tokens are successfully validated
+    And the event "MONEY_TRANSFER_REQUEST" is broadcast
+
+  Scenario: Failing token validation
+    When the service receives a "TOKEN_VALIDATION_REQUEST" event
+    Then tokens are not validated
+    And the event "TOKEN_VALIDATION_FAILED" is broadcast
+
+
+
