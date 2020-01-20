@@ -7,9 +7,13 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.After;
 import org.junit.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ws18.exceptions.ExceptionContainer;
 import ws18.exceptions.TokenUsedException;
 import ws18.exceptions.TooManyTokensException;
+import ws18.messagingutils.Listener;
+import ws18.model.Event;
 import ws18.model.Token;
 import ws18.service.ITokenManager;
 import ws18.service.TokenManager;
@@ -18,6 +22,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
+@SpringBootTest
 public class TokenManagementSteps {
 
     private User currentCustomer;
@@ -25,6 +30,11 @@ public class TokenManagementSteps {
     private ArrayList<Token> tokensReceived;
     private ExceptionContainer exceptionContainer = new ExceptionContainer();
     private Token token;
+    private Listener listener;
+    @Autowired
+    TokenManagementSteps(Listener listener) {
+        this.listener = listener;
+}
 
     @Before
     public void setUp() {
@@ -33,6 +43,9 @@ public class TokenManagementSteps {
 
     @Given("the customer is registered")
     public void theCustomerIsRegistered() {
+
+
+
         User customer = new User();
         customer.setCprNumber("991199-0000");
         customer.setFirstName("Jane");
