@@ -12,25 +12,20 @@ Feature: Token Management Features
     Then the token generation failed
     And the event "TOKEN_GENERATION_FAILED" is broadcast
 
-#  Scenario: Successful token retrieval
-#    When the service receives a "RETRIEVE_TOKENS" event
-#    Then tokens are successfully retrieved
-#    And the event "RETRIEVE_TOKENS_SUCCEED" is broadcast
-#
-#  Scenario: Failing token retrieval
-#    When the service receives a "RETRIEVE_TOKENS" event
-#    Then tokens are not retrieved
-#    And the event "RETRIEVE_TOKENS_FAILED" is broadcast
-#
-#  Scenario: Successful token validation
-#    When the service receives a "TOKEN_VALIDATION_REQUEST" event
-#    Then tokens are successfully validated
-#    And the event "MONEY_TRANSFER_REQUEST" is broadcast
-#
-#  Scenario: Failing token validation
-#    When the service receives a "TOKEN_VALIDATION_REQUEST" event
-#    Then tokens are not validated
-#    And the event "TOKEN_VALIDATION_FAILED" is broadcast
+  Scenario: Successful token retrieval
+    When the service receives a "RETRIEVE_TOKENS" event
+    Then tokens are successfully retrieved
+    And the event "RETRIEVE_TOKENS_SUCCEED" is broadcast
+
+  Scenario: Successful token validation
+    When the service receives a "TOKEN_VALIDATION_REQUEST" event
+    Then the token is successfully validated
+    And the event "MONEY_TRANSFER_REQUEST" is broadcast
+
+  Scenario: Failing token validation
+    When the service receives a "TOKEN_VALIDATION_REQUEST" event with an invalid token
+    Then tokens are not validated
+    And the event "TOKEN_VALIDATION_FAILED" is broadcast
 
 
 
