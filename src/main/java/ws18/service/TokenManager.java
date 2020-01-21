@@ -135,10 +135,11 @@ public class TokenManager implements ITokenManager, IEventReceiver {
             try {
                 validateToken(paymentRequest.getCpr(), paymentRequest.getToken());
             } catch (TokenValidationException e) {
-                Event response = new Event(EventType.TOKEN_VALIDATION_FAILED, e, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+                Event response = new Event(EventType.TOKEN_VALIDATION_FAILED, e.getMessage(), RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
                 eventSender.sendEvent(response);
                 return;
             }
+
             event.setType(EventType.MONEY_TRANSFER_REQUEST);
             event.setRoutingKey(RabbitMQValues.PAYMENT_SERVICE_ROUTING_KEY);
             eventSender.sendEvent(event);

@@ -3,9 +3,9 @@ package ws18;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import ws18.messagingutils.EventReceiverImpl;
-import ws18.messagingutils.EventSenderImpl;
 import ws18.messagingutils.IEventSender;
+import ws18.messagingutils.RabbitMqListener;
+import ws18.messagingutils.RabbitMqSender;
 import ws18.service.TokenManager;
 
 @EnableSwagger2
@@ -18,9 +18,9 @@ public class TokenManagementApplication {
         new TokenManagementApplication().startUp();
     }
     private void startUp() throws Exception {
-        IEventSender eventSender = new EventSenderImpl();
+        IEventSender eventSender = new RabbitMqSender();
         TokenManager tokenManager = new TokenManager(eventSender);
-        new EventReceiverImpl(tokenManager).listen();
+        new RabbitMqListener(tokenManager).listen();
     }
 }
 
