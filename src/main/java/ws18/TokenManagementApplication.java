@@ -17,8 +17,6 @@ public class TokenManagementApplication {
         SpringApplication.run(TokenManagementApplication.class, args);
         new TokenManagementApplication().startUp();
     }
-
-
     private void startUp() throws Exception {
         IEventSender eventSender = new EventSenderImpl();
         TokenManager tokenManager = new TokenManager(eventSender);

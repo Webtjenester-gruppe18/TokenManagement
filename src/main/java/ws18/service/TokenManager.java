@@ -148,18 +148,18 @@ public class TokenManager implements ITokenManager, IEventReceiver {
             try {
                 requestForNewTokens(cpr);
             } catch (TooManyTokensException e) {
-                Event response = new Event(EventType.TOKEN_GENERATION_FAILED, e, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+                Event response = new Event(EventType.TOKEN_GENERATION_RESPONSE, e, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
                 eventSender.sendEvent(response);
                 return;
             }
 
-            Event successResponse = new Event(EventType.TOKEN_GENERATION_SUCCEED, EventType.TOKEN_GENERATION_SUCCEED, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+            Event successResponse = new Event(EventType.TOKEN_GENERATION_RESPONSE, EventType.TOKEN_GENERATION_RESPONSE, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
             eventSender.sendEvent(successResponse);
 
         } else if (event.getType().equals(EventType.RETRIEVE_TOKENS)) {
             String cpr = objectMapper.convertValue(event.getObject(), String.class);
             ArrayList<Token> tokens = getUnusedTokensByCpr(cpr);
-            Event successResponse = new Event(EventType.RETRIEVE_TOKENS_SUCCEED, tokens, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
+            Event successResponse = new Event(EventType.RETRIEVE_TOKENS_RESPONSE, tokens, RabbitMQValues.DTU_SERVICE_ROUTING_KEY);
             eventSender.sendEvent(successResponse);
         }
     }
