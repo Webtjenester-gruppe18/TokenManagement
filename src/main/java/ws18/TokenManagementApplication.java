@@ -8,6 +8,10 @@ import ws18.messagingutils.RabbitMqListener;
 import ws18.messagingutils.RabbitMqSender;
 import ws18.service.TokenManager;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
+
 @EnableSwagger2
 @SpringBootApplication
 public class TokenManagementApplication {

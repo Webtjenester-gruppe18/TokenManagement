@@ -7,7 +7,6 @@ import com.rabbitmq.client.DeliverCallback;
 import gherkin.deps.com.google.gson.Gson;
 import ws18.model.Event;
 
-
 /**
  * 	Provided code from the instructor
  */

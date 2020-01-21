@@ -7,7 +7,6 @@ import gherkin.deps.com.google.gson.Gson;
 import org.springframework.stereotype.Component;
 import ws18.model.Event;
 
-
 /**
  * 	Provided code from the instructor
  */
