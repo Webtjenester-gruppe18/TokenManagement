@@ -25,6 +25,7 @@ public class EventReceiverImpl {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
             Event event = new Gson().fromJson(message, Event.class);
+            System.out.println(event.getType());
             try {
                 eventReceiver.receiveEvent(event);
             } catch (Exception e) {
