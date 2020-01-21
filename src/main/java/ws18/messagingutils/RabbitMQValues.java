@@ -2,6 +2,10 @@ package ws18.messagingutils;
 
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @author Emil Vinkel, s175107
+ */
+
 @Configuration
 public class RabbitMQValues {
     public static final String TOPIC_EXCHANGE_NAME = "dtupay-eventsExchange";

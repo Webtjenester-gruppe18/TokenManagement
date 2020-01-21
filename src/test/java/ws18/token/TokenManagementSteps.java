@@ -19,6 +19,10 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
+
 @EnableAutoConfiguration
 @SpringBootTest
 public class TokenManagementSteps {

@@ -7,6 +7,10 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor

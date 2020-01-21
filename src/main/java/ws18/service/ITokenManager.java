@@ -7,6 +7,10 @@ import ws18.model.Token;
 
 import java.util.ArrayList;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
+
 public interface ITokenManager{
 
     ArrayList<Token> getTokensByCpr(String cprNumber);

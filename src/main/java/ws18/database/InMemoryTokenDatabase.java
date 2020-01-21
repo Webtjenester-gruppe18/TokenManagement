@@ -1,5 +1,8 @@
 package ws18.database;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
 
 import ws18.model.Token;
 

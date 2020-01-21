@@ -17,6 +17,9 @@ import ws18.model.Token;
 
 import java.util.ArrayList;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
 
 public class TokenManager implements ITokenManager, IEventReceiver {
 

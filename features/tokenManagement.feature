@@ -1,5 +1,7 @@
 Feature: Token Management Features
 
+  # @author Emil Vinkel, s175107
+
   Scenario: Successful token generation
     When the service receives a "REQUEST_FOR_NEW_TOKENS" event
     Then tokens are successfully generated
