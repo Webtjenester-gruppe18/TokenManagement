@@ -1,5 +1,9 @@
 package ws18.exceptions;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
+
 public class ExceptionContainer {
 
     private String errorMessage;

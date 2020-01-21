@@ -1,5 +1,9 @@
 package ws18.model;
 
+/**
+ * @author Oliver Køppen, s175108
+ */
+
 public enum EventType {
     TOKEN_VALIDATION_REQUEST,
     TOKEN_VALIDATION_FAILED,
